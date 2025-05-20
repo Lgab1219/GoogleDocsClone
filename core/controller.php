@@ -1,0 +1,206 @@
+<?php
+
+session_start();
+
+require_once "dbconfig.php";
+require_once "models.php";
+
+header("Content-Type: application/json");
+
+if (isset($_POST["registerAccount"])) {
+    $email = $_POST["registerEmailInput"];
+    $username = $_POST["registerUsernameInput"];
+    $password = $_POST["registerPasswordInput"];
+    $role = $_POST["registerRoleInput"];
+
+    // Validate empty fields
+    if (empty($email) || empty($username) || empty($password || empty($role))) {
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'All fields are required.'
+        ]);
+        exit();
+    }
+
+    // Password validation
+    if (
+        strlen($password) < 5 ||
+        !preg_match('/[A-Z]/', $password) ||
+        !preg_match('/[a-z]/', $password) ||
+        !preg_match('/[0-9]/', $password) ||
+        !preg_match('/[^a-zA-Z0-9\s]/', $password)
+    ) {
+        // JSON for password validation
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'Password must be at least 5 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.'
+        ]);
+        exit();
+    }
+
+    $password = password_hash($password, PASSWORD_DEFAULT);
+
+    $insertQuery = registerAccount($pdo, $email, $username, $password, $role);
+
+    if ($insertQuery) {
+        echo json_encode([
+            'status' => 'success',
+            'redirect' => 'login.php'
+        ]);
+        exit();
+    } else {
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'An error occurred during registration. Please try again.'
+        ]);
+        exit();
+    }
+}
+
+if(isset($_POST['loginAccount'])) {
+    $email = $_POST['loginEmailInput'];
+    $password = $_POST['loginPasswordInput'];
+
+    if(!empty($email) || !empty($password)) {
+        $loginQuery = loginAccount($pdo, $email, $password);
+
+        if($loginQuery){
+            $usernameDB = $loginQuery['username'];
+            $accountIDDB = $loginQuery['accountID'];
+            $roleDB = $loginQuery['role'];
+            $_SESSION['username'] = $usernameDB;
+            $_SESSION['accountID'] = $accountIDDB;
+            $_SESSION['role'] = $roleDB;
+
+            echo json_encode([
+                'status' => 'success',
+                'redirect' => 'index.php'
+            ]);
+            exit();
+        } else {
+            echo json_encode([
+                'status'=> 'error',
+                'message'=> 'Incorrect email or password!'
+            ]);
+            exit();
+        }
+    } else {
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'All fields are required.'
+        ]);
+        exit();
+    }
+}
+
+
+if (isset($_POST['createDocument'])) {
+
+    $accountID = $_SESSION['accountID'] ?? null;
+
+    if (!$accountID) {
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'Not logged in.'
+        ]);
+        exit();
+    }
+
+    $title = "";
+    $text = "";
+
+    $documentID = createDocument($pdo, $accountID, $title, $text);
+
+    if ($documentID) {
+        echo json_encode([
+            'status' => 'success',
+            'documentID' => $documentID
+        ]);
+    } else {
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'Failed to create document.'
+        ]);
+    }
+
+    exit();
+}
+
+if (isset($_POST['updateDocument'])) {
+    $documentID = $_POST['documentID'] ?? null;
+    $title = $_POST['title'] ?? '';
+    $text = $_POST['text'] ?? '';
+    $accountID = $_SESSION['accountID'] ?? null;
+
+    if (!$accountID || !$documentID) {
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'Invalid session or document ID.'
+        ]);
+        exit();
+    }
+
+    $updateSuccess = updateDocument($pdo, $documentID, $title, $text, $accountID);
+
+    if ($updateSuccess) {
+        echo json_encode([
+            'status' => 'success'
+        ]);
+    } else {
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'Failed to update document.'
+        ]);
+    }
+
+    exit();
+}
+
+if (isset($_GET['getDocument'])) {
+    $documentID = $_GET['documentID'] ?? null;
+    $accountID = $_SESSION['accountID'] ?? null;
+
+    if (!$documentID || !$accountID) {
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'Invalid document ID or not logged in.'
+        ]);
+        exit();
+    }
+
+    $document = getDocumentByID($pdo, $documentID, $accountID);
+
+    if ($document) {
+        echo json_encode([
+            'status' => 'success',
+            'document' => $document
+        ]);
+    } else {
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'Document not found.',
+            'redirect' => 'index.php'
+        ]);
+    }
+
+    exit();
+}
+
+if (isset($_GET['getAllDocuments'])) {
+
+    if(!$_SESSION['accountID']){
+        echo json_encode([
+            'status'=> 'error',
+            'message'=> 'No accounts logged in!'
+        ]);
+        exit();
+    }
+
+    $documents = getAllDocuments($pdo);
+
+    echo json_encode([
+        'status' => 'success',
+        'documents' => $documents
+    ]);
+    exit();
+}
