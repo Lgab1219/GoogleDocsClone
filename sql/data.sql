@@ -3,7 +3,8 @@ CREATE TABLE accounts (
     username VARCHAR(255),
     email VARCHAR(255),
     password VARCHAR(255),
-    role VARCHAR(255)
+    role VARCHAR(255),
+    suspend BOOLEAN
 );
 
 CREATE TABLE documents (

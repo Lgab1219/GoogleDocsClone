@@ -12,6 +12,8 @@ if (isset($_POST["registerAccount"])) {
     $username = $_POST["registerUsernameInput"];
     $password = $_POST["registerPasswordInput"];
     $role = $_POST["registerRoleInput"];
+    $suspend = isset($_POST["suspendInput"]) ? (int) $_POST["suspendInput"] : 0;
+
 
     // Validate empty fields
     if (empty($email) || empty($username) || empty($password || empty($role))) {
@@ -40,7 +42,7 @@ if (isset($_POST["registerAccount"])) {
 
     $password = password_hash($password, PASSWORD_DEFAULT);
 
-    $insertQuery = registerAccount($pdo, $email, $username, $password, $role);
+    $insertQuery = registerAccount($pdo, $email, $username, $password, $role, $suspend);
 
     if ($insertQuery) {
         echo json_encode([
@@ -68,9 +70,11 @@ if(isset($_POST['loginAccount'])) {
             $usernameDB = $loginQuery['username'];
             $accountIDDB = $loginQuery['accountID'];
             $roleDB = $loginQuery['role'];
+            $suspend = $loginQuery['suspend'];
             $_SESSION['username'] = $usernameDB;
             $_SESSION['accountID'] = $accountIDDB;
             $_SESSION['role'] = $roleDB;
+            $_SESSION['suspend'] = $suspend;
 
             echo json_encode([
                 'status' => 'success',
@@ -92,6 +96,48 @@ if(isset($_POST['loginAccount'])) {
         exit();
     }
 }
+
+if (isset($_GET['getAllNonAdminAccounts'])) {
+
+    if(!$_SESSION['accountID']){
+        echo json_encode([
+            'status'=> 'error',
+            'message'=> 'No accounts logged in!'
+        ]);
+        exit();
+    }
+
+    $accounts = getAllNonAdminAccounts($pdo);
+
+    echo json_encode([
+        'status' => 'success',
+        'accounts' => $accounts
+    ]);
+    exit();
+}
+
+if (isset($_POST["toggleSuspend"])) {
+    $username = $_POST["username"];
+    $suspend = $_POST["suspend"];
+
+    $sql = "UPDATE accounts SET suspend = ? WHERE username = ?";
+    $stmt = $pdo->prepare($sql);
+    $updated = $stmt->execute([$suspend, $username]);
+
+    if ($updated) {
+        echo json_encode([
+            'status' => 'success',
+            'message' => 'Suspend status updated.'
+        ]);
+    } else {
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'Failed to update suspend status.'
+        ]);
+    }
+    exit();
+}
+
 
 
 if (isset($_POST['createDocument'])) {

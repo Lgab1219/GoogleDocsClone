@@ -2,17 +2,17 @@
 
 require_once "dbconfig.php";
 
-function registerAccount($pdo, $email, $username, $password, $role) {
+function registerAccount($pdo, $email, $username, $password, $role, $suspend) {
     $sqlCheck = "SELECT * FROM accounts WHERE email = ?";
     $stmt = $pdo->prepare($sqlCheck);
     $stmt -> execute([$email]);
 
     if($stmt -> rowCount() == 0) {
-        $sqlInsert = "INSERT INTO accounts (email, username, password, role)
-                      VALUES (?, ?, ?, ?)";
+        $sqlInsert = "INSERT INTO accounts (email, username, password, role, suspend)
+                      VALUES (?, ?, ?, ?, ?)";
         
         $stmt = $pdo->prepare($sqlInsert);
-        $query = $stmt -> execute([$email, $username, $password, $role]);
+        $query = $stmt -> execute([$email, $username, $password, $role, $suspend]);
 
         if($query) {
             return true;
@@ -35,6 +35,13 @@ function loginAccount($pdo, $email, $password) {
         return false;
     }
 };
+
+function getAllNonAdminAccounts($pdo) {
+    $sql = "SELECT * FROM accounts WHERE role = 'user'";
+    $stmt = $pdo->prepare($sql);
+    $stmt -> execute();
+    return $stmt -> fetchAll();
+}
 
 function createDocument($pdo, $accountID, $title, $text) {
     $sql = "INSERT INTO documents (accountID, documentTitle, documentText, createdBy)

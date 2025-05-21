@@ -1,6 +1,12 @@
 <?php
 session_start();
+
 if (!isset($_SESSION["accountID"])) {
+    header("Location: login.php");
+    exit();
+}
+
+if (isset($_SESSION["suspend"]) && $_SESSION["suspend"] == 1) {
     header("Location: login.php");
     exit();
 }

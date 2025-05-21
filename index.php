@@ -9,6 +9,12 @@ if (!isset($_SESSION["accountID"])){
     exit();
 }
 
+if (isset($_SESSION["suspend"]) && $_SESSION["suspend"] == 1) {
+    header("Location: login.php");
+    exit();
+}
+
+
 $nonAdminDocuments = getAllNonAdminDocuments($pdo);
 $adminDocuments = getAllAdminDocuments($pdo);
 
@@ -24,6 +30,10 @@ $adminDocuments = getAllAdminDocuments($pdo);
 </head>
 <body>
     <h1>Hello, <?php echo $_SESSION['username']; ?>!</h1>
+   
+    <?php if($_SESSION['role'] == "admin"): ?>
+        <a href="suspendAccounts.php">Suspend Accounts</a><br><br>
+    <?php endif; ?>
 
     <button id="createDocumentBtn">Create a new document</button>
 

@@ -7,10 +7,12 @@ $("#registerForm").on('submit', function(event) {
         registerUsernameInput: $("#registerUsernameInput").val(),
         registerPasswordInput: $("#registerPasswordInput").val(),
         registerRoleInput: $("#registerRoleInput").val(),
+        suspendInput: $("#suspendInput").val(),
         registerAccount: 1
     };
 
-    if (formData.registerEmailInput !== "" && formData.registerUsernameInput !== "" && formData.registerPasswordInput !== "" && formData.registerRoleInput !== "") {
+    if (formData.registerEmailInput !== "" && formData.registerUsernameInput !== "" && 
+        formData.registerPasswordInput !== "" && formData.registerRoleInput !== "" && formData.suspendInput !== "") {
         $.ajax({
             type: "POST",
             url: "core/controller.php",
@@ -229,3 +231,28 @@ function formatText(tag) {
     selection.addRange(range);
 }
 
+$(document).on('change', '.account', function() {
+    const username = $(this).val();
+    const isSuspended = $(this).is(':checked') ? 1 : 0;
+
+    $.ajax({
+        type: "POST",
+        url: "core/controller.php",
+        data: {
+            toggleSuspend: 1,
+            username: username,
+            suspend: isSuspended
+        },
+        dataType: "json",
+        success: function(response) {
+            if (response.status === "success") {
+                console.log("Suspend status updated.");
+            } else {
+                console.log("Error:", response.message);
+            }
+        },
+        error: function() {
+            console.log("AJAX error.");
+        }
+    });
+});

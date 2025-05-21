@@ -33,6 +33,7 @@
             </select>
             <br><br>
 
+            <input type="hidden" name="suspend" id="suspendInput" value="0">
             <input type="submit" value="Register" class="registerBtn" name="registerUserBtn">
         </form>
         <br><br>
