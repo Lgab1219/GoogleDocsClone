@@ -14,3 +14,11 @@ CREATE TABLE documents (
     documentText TEXT,
     createdBy INT
 );
+
+CREATE TABLE document_access (
+    accessID INT AUTO_INCREMENT PRIMARY KEY,
+    documentID INT,
+    accountID INT,
+    FOREIGN KEY (documentID) REFERENCES documents(documentID) ON DELETE CASCADE,
+    FOREIGN KEY (accountID) REFERENCES accounts(accountID) ON DELETE CASCADE
+);

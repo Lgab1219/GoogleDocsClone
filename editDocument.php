@@ -66,6 +66,12 @@ $documentID = $_GET['documentID'] ?? null;
         </form>
     </div>
 
+    <div>
+        <input type="text" id="userSearch" placeholder="Search users to share with...">
+        <input type="hidden" id="docID" value="<?php echo htmlspecialchars($_GET['documentID']); ?>">
+        <ul id="searchResults"></ul>
+    </div>
+
     <script src="core/script.js"></script>
 </body>
 </html>

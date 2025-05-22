@@ -256,3 +256,45 @@ $(document).on('change', '.account', function() {
         }
     });
 });
+
+$('#userSearch').on('keyup', function() {
+    const query = $(this).val();
+    if (query.length < 2) return;
+
+    $.ajax({
+        type: 'GET',
+        url: 'core/controller.php',
+        data: { searchUsers: 1, query: query },
+        dataType: 'json',
+        success: function(users) {
+            $('#searchResults').empty();
+            users.forEach(user => {
+                $('#searchResults').append(`
+                    <li>
+                        ${user.username}
+                        <button class="grantAccess" data-id="${user.accountID}">Grant Access</button>
+                    </li>
+                `);
+            });
+        }
+    });
+});
+
+$(document).on('click', '.grantAccess', function() {
+    const accountID = $(this).data('id');
+    const documentID = $('#docID').val();
+
+    $.ajax({
+        type: 'POST',
+        url: 'core/controller.php',
+        data: {
+            grantAccess: 1,
+            accountID: accountID,
+            documentID: documentID
+        },
+        dataType: 'json',
+        success: function(response) {
+            alert(response.status === 'success' ? 'Access granted!' : 'Error granting access.');
+        }
+    });
+});

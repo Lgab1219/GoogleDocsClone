@@ -250,3 +250,30 @@ if (isset($_GET['getAllDocuments'])) {
     ]);
     exit();
 }
+
+if (isset($_GET['searchUsers'])) {
+    $query = $_GET['query'];
+    
+    $sql = "SELECT accountID, username FROM accounts 
+            WHERE username LIKE ? AND role = 'user' AND suspend = 0";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute(["%$query%"]);
+    $results = $stmt->fetchAll();
+
+    echo json_encode($results);
+    exit();
+}
+
+if (isset($_POST['grantAccess'])) {
+    $documentID = $_POST['documentID'];
+    $accountID = $_POST['accountID'];
+
+    $sql = "INSERT IGNORE INTO document_access (documentID, accountID) VALUES (?, ?)";
+    $stmt = $pdo->prepare($sql);
+    $success = $stmt->execute([$documentID, $accountID]);
+
+    echo json_encode([
+        'status' => $success ? 'success' : 'error'
+    ]);
+    exit();
+}

@@ -58,15 +58,35 @@ function createDocument($pdo, $accountID, $title, $text) {
 };
 
 function updateDocument($pdo, $documentID, $title, $text, $accountID) {
-    $sql = "UPDATE documents SET documentTitle = ?, documentText = ? WHERE documentID = ? AND accountID = ?";
+    // Only allow update if user is the owner OR has access
+    $sql = "
+        UPDATE documents
+        SET documentTitle = ?, documentText = ?
+        WHERE documentID = ?
+          AND (
+            accountID = ? OR
+            EXISTS (
+                SELECT 1 FROM document_access
+                WHERE documentID = ? AND accountID = ?
+            )
+          )
+    ";
     $stmt = $pdo->prepare($sql);
-    return $stmt->execute([$title, $text, $documentID, $accountID]);
+    return $stmt->execute([$title, $text, $documentID, $accountID, $documentID, $accountID]);
 }
 
+
 function getDocumentByID($pdo, $documentID, $accountID) {
-    $sql = "SELECT documentTitle, documentText FROM documents WHERE documentID = ? AND accountID = ?";
+    $sql = "
+        SELECT d.documentTitle, d.documentText
+        FROM documents d
+        LEFT JOIN document_access da ON d.documentID = da.documentID
+        WHERE d.documentID = ?
+          AND (d.accountID = ? OR da.accountID = ?)
+        LIMIT 1
+    ";
     $stmt = $pdo->prepare($sql);
-    $stmt->execute([$documentID, $accountID]);
+    $stmt->execute([$documentID, $accountID, $accountID]);
     return $stmt->fetch();
 }
 
