@@ -58,7 +58,15 @@ function createDocument($pdo, $accountID, $title, $text) {
 };
 
 function updateDocument($pdo, $documentID, $title, $text, $accountID) {
-    // Only allow update if user is the owner OR has access
+    // Fetch current document first
+    $sql = "SELECT documentTitle, documentText FROM documents WHERE documentID = ?";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$documentID]);
+    $doc = $stmt->fetch();
+
+    if (!$doc) return false;
+
+    // Update document if allowed
     $sql = "
         UPDATE documents
         SET documentTitle = ?, documentText = ?
@@ -72,8 +80,29 @@ function updateDocument($pdo, $documentID, $title, $text, $accountID) {
           )
     ";
     $stmt = $pdo->prepare($sql);
-    return $stmt->execute([$title, $text, $documentID, $accountID, $documentID, $accountID]);
+    $success = $stmt->execute([$title, $text, $documentID, $accountID, $documentID, $accountID]);
+
+    if ($success) {
+        // Log title change
+        if ($doc['documentTitle'] !== $title) {
+            logDocumentChange($pdo, $documentID, $accountID, 'edited_title', $doc['documentTitle'], $title);
+        }
+
+        // Log text change
+        if ($doc['documentText'] !== $text) {
+            logDocumentChange($pdo, $documentID, $accountID, 'edited_text', $doc['documentText'], $text);
+        }
+    }
+
+    return $success;
 }
+
+function logDocumentChange($pdo, $documentID, $accountID, $action, $oldValue, $newValue) {
+    $sql = "INSERT INTO document_logs (documentID, accountID, action, oldValue, newValue) VALUES (?, ?, ?, ?, ?)";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$documentID, $accountID, $action, $oldValue, $newValue]);
+}
+
 
 
 function getDocumentByID($pdo, $documentID, $accountID) {

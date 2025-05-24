@@ -1,17 +1,31 @@
 <?php
 session_start();
 
+require_once "core/dbconfig.php";
+
 if (!isset($_SESSION["accountID"])) {
     header("Location: login.php");
     exit();
 }
 
+// This checks if your account is suspended or not
 if (isset($_SESSION["suspend"]) && $_SESSION["suspend"] == 1) {
     header("Location: login.php");
     exit();
 }
 
 $documentID = $_GET['documentID'] ?? null;
+
+// This fetches the logs on the activity logs table
+$stmt = $pdo->prepare("
+    SELECT l.*, a.username
+    FROM document_logs l
+    JOIN accounts a ON l.accountID = a.accountID
+    WHERE l.documentID = ?
+    ORDER BY l.timestamp DESC
+");
+$stmt->execute([$documentID]);
+$logs = $stmt->fetchAll();
 ?>
 
 <!DOCTYPE html>
@@ -20,23 +34,12 @@ $documentID = $_GET['documentID'] ?? null;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <link rel="stylesheet" href="css/styles.css">
     <title>Document</title>
 </head>
 <body>
 
-    <style>
-    .toolbar button {
-        margin-right: 5px;
-        padding: 5px 10px;
-        font-size: 14px;
-        cursor: pointer;
-    }
-    #documentTextInput h1, h2, h3, p {
-        margin: 10px 0;
-    }
-    </style>
-
-    <h1>Edit Document #<?php echo htmlspecialchars($documentID); ?></h1>
+    <h1>Edit Document</h1>
 
     <a href="index.php">Return</a>
     <br><br>
@@ -65,12 +68,19 @@ $documentID = $_GET['documentID'] ?? null;
 
         </form>
     </div>
-
-    <div>
+    
+    <div class="userSearchContainer">
         <input type="text" id="userSearch" placeholder="Search users to share with...">
         <input type="hidden" id="docID" value="<?php echo htmlspecialchars($_GET['documentID']); ?>">
         <ul id="searchResults"></ul>
     </div>
+
+    <h3>Recent Activity Logs</h3>
+    <div id="logContainer">
+        <p>Loading logs...</p>
+    </div>
+
+
 
     <script src="core/script.js"></script>
 </body>

@@ -51,7 +51,7 @@ $("#loginForm").on('submit', function(event) {
             success: function(response) {
                 if(response.status === "success"){
                     window.location.href = response.redirect;
-                } else if (data.status === "error") {
+                } else if (response.status === "error") {
                     $("#messageLogin").html(`<p style="color:red;">${response.message}</p>`);
                 }
             },
@@ -136,6 +136,7 @@ $(document).ready(function () {
                 if (response.status === "success") {
                     $("#documentTitleInput").val(response.document.documentTitle);
                     $("#documentTextInput").html(response.document.documentText);
+                    fetchLogs();
                 } else {
                     alert("Failed to load document: " + response.message);
                     window.location.href = response.redirect;
@@ -202,6 +203,7 @@ function autosave() {
             if (response.status === "success") {
                 $("#message").html("<p>Document auto-saved.</p>");
                 console.log("Document auto-saved.");
+                fetchLogs();
             } else {
                 console.warn("Autosave failed: " + response.message);
             }
@@ -212,6 +214,7 @@ function autosave() {
     });
 }
 
+// This function changes the format of the text once a text has been highlighted/selected
 function formatText(tag) {
     const selection = window.getSelection();
     if (!selection.rangeCount) return;
@@ -298,3 +301,51 @@ $(document).on('click', '.grantAccess', function() {
         }
     });
 });
+
+function fetchLogs() {
+    const documentID = new URLSearchParams(window.location.search).get("documentID");
+
+    $.ajax({
+        type: 'GET',
+        url: 'core/controller.php',
+        data: { fetchLogs: 1, documentID: documentID },
+        dataType: 'json',
+        success: function(response) {
+            if (response.status === 'success') {
+                const logs = response.logs;
+                const logContainer = $('#logContainer');
+                logContainer.empty();
+
+                if (logs.length === 0) {
+                    logContainer.html('<p>No logs found.</p>');
+                    return;
+                }
+
+                logs.forEach(log => {
+                    const actionLabel = {
+                        edited_title: 'edited the title',
+                        edited_text: 'edited the text',
+                        created: 'created the document'
+                    }[log.action] || log.action;
+
+                    let html = `<div class="log-entry">
+                        <strong>${log.username}</strong> ${actionLabel} on <em>${log.timestamp}</em><br>`;
+
+                    if (log.action === 'edited_title') {
+                        html += `Title: <strong>${log.oldValue}</strong> → <strong>${log.newValue}</strong>`;
+                    } else if (log.action === 'edited_text') {
+                        html += `<details><summary>View content changes</summary>
+                                 <p><strong>Old:</strong><br>${log.oldValue}</p>
+                                 <p><strong>New:</strong><br>${log.newValue}</p>
+                                 </details>`;
+                    }
+
+                    html += `</div><hr>`;
+                    logContainer.append(html);
+                });
+            } else {
+                $('#logContainer').html('<p>Error fetching logs.</p>');
+            }
+        }
+    });
+}
