@@ -22,3 +22,15 @@ CREATE TABLE document_access (
     FOREIGN KEY (documentID) REFERENCES documents(documentID) ON DELETE CASCADE,
     FOREIGN KEY (accountID) REFERENCES accounts(accountID) ON DELETE CASCADE
 );
+
+CREATE TABLE document_logs (
+    logID INT AUTO_INCREMENT PRIMARY KEY,
+    documentID INT NOT NULL,
+    accountID INT NOT NULL,
+    action ENUM('created', 'edited_title', 'edited_text') NOT NULL,
+    oldValue TEXT,
+    newValue TEXT,
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (documentID) REFERENCES documents(documentID),
+    FOREIGN KEY (accountID) REFERENCES accounts(accountID)
+);

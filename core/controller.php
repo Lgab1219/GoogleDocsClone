@@ -255,7 +255,7 @@ if (isset($_GET['searchUsers'])) {
     $query = $_GET['query'];
     
     $sql = "SELECT accountID, username FROM accounts 
-            WHERE username LIKE ? AND role = 'user' AND suspend = 0";
+            WHERE username LIKE ? AND suspend = 0";
     $stmt = $pdo->prepare($sql);
     $stmt->execute(["%$query%"]);
     $results = $stmt->fetchAll();
@@ -275,5 +275,29 @@ if (isset($_POST['grantAccess'])) {
     echo json_encode([
         'status' => $success ? 'success' : 'error'
     ]);
+    exit();
+}
+
+if (isset($_GET['fetchLogs'])) {
+    $documentID = $_GET['documentID'] ?? null;
+
+    if (!$documentID) {
+        echo json_encode(['status' => 'error', 'message' => 'Missing documentID.']);
+        exit();
+    }
+
+    $sql = "
+        SELECT l.*, a.username
+        FROM document_logs l
+        JOIN accounts a ON l.accountID = a.accountID
+        WHERE l.documentID = ?
+        ORDER BY l.timestamp DESC
+        LIMIT 10
+    ";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$documentID]);
+    $logs = $stmt->fetchAll();
+
+    echo json_encode(['status' => 'success', 'logs' => $logs]);
     exit();
 }
