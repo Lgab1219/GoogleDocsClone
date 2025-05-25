@@ -34,3 +34,13 @@ CREATE TABLE document_logs (
     FOREIGN KEY (documentID) REFERENCES documents(documentID),
     FOREIGN KEY (accountID) REFERENCES accounts(accountID)
 );
+
+CREATE TABLE document_messages (
+    messageID INT AUTO_INCREMENT PRIMARY KEY,
+    documentID INT NOT NULL,
+    senderID INT NOT NULL,
+    messageText TEXT NOT NULL,
+    sentAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (documentID) REFERENCES documents(documentID),
+    FOREIGN KEY (senderID) REFERENCES accounts(accountID)
+);

@@ -146,6 +146,10 @@ $(document).ready(function () {
                 console.error("Error loading document:", status, error);
             }
         });
+
+        loadMessages();
+
+        setInterval(loadMessages, 5000);
     }
 });
 
@@ -249,7 +253,7 @@ $(document).on('change', '.account', function() {
         dataType: "json",
         success: function(response) {
             if (response.status === "success") {
-                console.log("Suspend status updated.");
+                alert("Suspend status updated.");
             } else {
                 console.log("Error:", response.message);
             }
@@ -349,3 +353,50 @@ function fetchLogs() {
         }
     });
 }
+
+function loadMessages() {
+    const documentID = new URLSearchParams(window.location.search).get("documentID");
+
+    $.ajax({
+        type: 'GET',
+        url: 'core/controller.php',
+        data: { getMessages: 1, documentID },
+        dataType: 'json',
+        success: function (response) {
+            if (response.status === "success") {
+                const chatBox = $('#chatBox');
+                chatBox.empty();
+                response.messages.forEach(msg => {
+                    chatBox.append(`<p><strong>${msg.username}</strong> [${msg.sentAt}]: ${msg.messageText}</p>`);
+                });
+                chatBox.scrollTop(chatBox[0].scrollHeight);
+            }
+        }
+    });
+}
+
+$('#chatForm').on('submit', function (e) {
+    e.preventDefault();
+
+    const messageText = $('#chatInput').val().trim();
+    const documentID = new URLSearchParams(window.location.search).get("documentID");
+
+    if (!messageText) return;
+
+    $.ajax({
+        type: 'POST',
+        url: 'core/controller.php',
+        data: {
+            sendMessage: 1,
+            documentID,
+            messageText
+        },
+        dataType: 'json',
+        success: function (response) {
+            if (response.status === "success") {
+                $('#chatInput').val('');
+                loadMessages();
+            }
+        }
+    });
+});

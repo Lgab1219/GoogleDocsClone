@@ -76,6 +76,13 @@ if(isset($_POST['loginAccount'])) {
             $_SESSION['role'] = $roleDB;
             $_SESSION['suspend'] = $suspend;
 
+            if($_SESSION['suspend'] == 1) {
+                echo json_encode([
+                    'status'=> 'error',
+                    'message'=> 'Sorry, your account has been suspended!'
+                ]);
+            }
+
             echo json_encode([
                 'status' => 'success',
                 'redirect' => 'index.php'
@@ -152,7 +159,7 @@ if (isset($_POST['createDocument'])) {
         exit();
     }
 
-    $title = "";
+    $title = "New Document";
     $text = "";
 
     $documentID = createDocument($pdo, $accountID, $title, $text);
@@ -299,5 +306,44 @@ if (isset($_GET['fetchLogs'])) {
     $logs = $stmt->fetchAll();
 
     echo json_encode(['status' => 'success', 'logs' => $logs]);
+    exit();
+}
+
+if (isset($_POST['sendMessage'])) {
+    $documentID = $_POST['documentID'] ?? null;
+    $messageText = trim($_POST['messageText'] ?? '');
+    $accountID = $_SESSION['accountID'] ?? null;
+
+    if (!$documentID || !$accountID || $messageText === '') {
+        echo json_encode(['status' => 'error', 'message' => 'Missing data']);
+        exit();
+    }
+
+    $stmt = $pdo->prepare("INSERT INTO document_messages (documentID, senderID, messageText) VALUES (?, ?, ?)");
+    $stmt->execute([$documentID, $accountID, $messageText]);
+
+    echo json_encode(['status' => 'success']);
+    exit();
+}
+
+if (isset($_GET['getMessages'])) {
+    $documentID = $_GET['documentID'] ?? null;
+
+    if (!$documentID) {
+        echo json_encode(['status' => 'error', 'message' => 'Missing document ID']);
+        exit();
+    }
+
+    $stmt = $pdo->prepare("
+        SELECT dm.messageText, dm.sentAt, a.username
+        FROM document_messages dm
+        JOIN accounts a ON dm.senderID = a.accountID
+        WHERE dm.documentID = ?
+        ORDER BY dm.sentAt ASC
+    ");
+    $stmt->execute([$documentID]);
+    $messages = $stmt->fetchAll();
+
+    echo json_encode(['status' => 'success', 'messages' => $messages]);
     exit();
 }

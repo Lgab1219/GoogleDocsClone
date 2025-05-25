@@ -67,6 +67,15 @@ $logs = $stmt->fetchAll();
         </div>
 
         </form>
+
+        <div class="chatContainer">
+            <h3>Document Chat</h3>
+            <div id="chatBox" style="border: 1px solid #ccc; padding: 10px; height: 200px; overflow-y: auto;"></div>
+                <form id="chatForm">
+                    <input type="text" id="chatInput" placeholder="Type your message..." style="width: 80%;">
+                    <button type="submit">Send</button>
+                </form>
+            </div>
     </div>
     
     <div class="userSearchContainer">

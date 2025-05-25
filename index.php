@@ -14,8 +14,9 @@ if (isset($_SESSION["suspend"]) && $_SESSION["suspend"] == 1) {
     exit();
 }
 
+$accountID = $_SESSION["accountID"];
+$nonAdminDocuments = getAllNonAdminDocuments($pdo, $accountID);
 
-$nonAdminDocuments = getAllNonAdminDocuments($pdo);
 $adminDocuments = getAllAdminDocuments($pdo);
 
 ?>
@@ -57,7 +58,7 @@ $adminDocuments = getAllAdminDocuments($pdo);
                 <?php foreach($adminDocuments as $document): ?>
                     <li>
                     <a href="editDocument.php?documentID=<?php echo $document['documentID']; ?>">
-                        <p><?php echo htmlspecialchars($document['documentTitle']) ?> </p>
+                        <p><?php echo htmlspecialchars(trim($document['documentTitle']) ?: '(Untitled Document)'); ?> </p>
                     </a>
                     <p>Created By: <?php echo htmlspecialchars($document['username']) ?></p>
                     </li>

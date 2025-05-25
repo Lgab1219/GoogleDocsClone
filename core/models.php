@@ -126,15 +126,27 @@ function getAllDocuments($pdo) {
     return $stmt->fetchAll();
 }
 
-function getAllNonAdminDocuments($pdo) {
-    $sql = "SELECT d.documentID, d.documentTitle, a.username
-            FROM documents d
-            JOIN accounts a ON d.accountID = a.accountID
-            WHERE a.role != 'admin'";
+function getAllNonAdminDocuments($pdo, $accountID) {
+    $sql = "
+        SELECT d.documentID, d.documentTitle, a.username
+        FROM documents d
+        JOIN accounts a ON d.accountID = a.accountID
+        WHERE a.role != 'admin'
+
+        UNION
+
+        SELECT d.documentID, d.documentTitle, a.username
+        FROM document_access da
+        JOIN documents d ON da.documentID = d.documentID
+        JOIN accounts a ON d.accountID = a.accountID
+        WHERE da.accountID = ?
+    ";
+
     $stmt = $pdo->prepare($sql);
-    $stmt->execute();
+    $stmt->execute([$accountID]);
     return $stmt->fetchAll();
 }
+
 
 function getAllAdminDocuments($pdo) {
     $sql = "SELECT d.documentID, d.documentTitle, a.username
