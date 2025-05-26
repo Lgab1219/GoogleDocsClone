@@ -1,3 +1,230 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.loginContainer, .registerContainer {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: fit-content;
+    text-align: center;
+    margin-top: 20vh;
+    padding: 5vw;
+    border: 1px solid black;
+    box-shadow: 8px 8px lightblue;
+}
+
+li {
+    list-style-type: none;
+}
+
+.navbar {
+    display: inline-block;
+    position: absolute;
+    top: 3vh;
+    left: 43vw;
+}
+
+#lower-navbar {
+    display: flex;
+    margin: 100px 0 50px 0;
+    justify-content: space-between;
+    padding: 10px 0 20px 0;
+    box-shadow: 0 12px 15px 0 rgb(201, 202, 202);
+}
+
+
+#logoutBtn {
+    margin: 5px 5vw 0 5vw;
+    width: 7vw;
+    height: 3em;
+    border: none;
+    background-color: rgb(91, 180, 236);
+    color: white;
+    font-family: "Montserrat", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 200;
+    font-style: normal;
+}
+
+.saveDocumentBtn {
+    margin: 5px 0 0 0;
+    width: 7vw;
+    height: 3em;
+    border: none;
+    background-color: rgb(91, 180, 236);
+    color: white;
+}
+
+#logoutBtn:hover, .saveDocumentBtn:hover {
+    background-color: rgb(37, 111, 158);
+}
+
+#createDocumentBtn {
+    width: 3.8vw;
+    height: 55px;
+    border-radius: 50px;
+    border: none;
+    background-color: rgb(91, 180, 236);
+    font-size: 25px;
+    color: white;
+}
+
+#createDocumentBtn:hover {
+    background-color: rgb(37, 111, 158);
+}
+
+.createDocumentBtnContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#documentsContainer {
+    border: 1px solid black;
+    margin: 20px 3vw 20px 3vw;
+    padding: 5px 3vw 5px 3vw;
+}
+
+.username {
+    padding: 0 5vw 0 5vw;
+}
+
+#logo-span {
+    font-family: "Montserrat", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 800;
+    font-style: normal;
+    font-size: 15px;
+    color: rgb(91, 180, 236);
+}
+
+#suspendBtn {
+    margin: 0 23vw;
+    text-decoration: none;
+    font-family: "Montserrat", sans-serif;
+    font-optical-sizing: auto;
+    padding: 15px 10px;
+    width: 10vw;
+    height: 1.5em;
+    font-weight: 200;
+    font-style: normal;
+    font-size: 15px;
+    background-color: rgb(236, 91, 91);
+    color: white;
+    text-align: center;
+}
+
+#suspendBtn:hover {
+    background-color: rgb(180, 47, 47);
+}
+
+.montserrat {
+    font-family: "Montserrat", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 200;
+    font-style: normal;
+}
+
+#documentTextInput {
+    width: 50vw;
+    border: 1px solid black;
+}
+
+.title-text {
+    font-size: 20px;
+}
+
+#accountsContainer {
+    padding: 20px 5vw;
+}
+
+.documentContainer {
+    margin: 20px 0 0 3vw;
+    display: flex;
+}
+
+#documentForm {
+    width: 75vw;
+}
+
+#documentTitleInput {
+    width: 50vw;
+    height: 2em;
+    padding: 0 10px;
+}
+
+.chatContainer {
+    width: 20vw;
+    margin: 0 0 0 -30px;
+}
+
+.document-item {
+    margin: 30px 0;
+}
+
+.document-desc, .recent-activity {
+    margin: 0 3vw;
+}
+
+#loginEmail, #loginPassword, #register-link, #login-link, #messageLogin, 
+#message, #registerEmail, #registerUsername, #registerRole, #registerPassword, #logContainer {
+    font-family: "Montserrat", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+}
+
+#loginEmailInput, #loginPasswordInput, #registerEmailInput, #registerUsernameInput, #registerPasswordInput, #registerRoleInput {
+    width: 25vw;
+    padding: 5px;
+    height: 20px;
+}
+
+.loginBtn, .registerBtn {
+    font-family: "Montserrat", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+    padding: 5px;
+    width: 10vw;
+    height: 7vh;
+    background-color: rgb(91, 180, 236);
+    color: white;
+    border: none;
+}
+
+.chatBtn {
+    font-family: "Montserrat", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+    padding: 5px;
+    width: 5vw;
+    height: 5vh;
+    background-color: rgb(91, 180, 236);
+    color: white;
+    border: none;
+}
+
+#chatForm {
+    display: flex;
+    justify-content: space-between;
+}
+
+#userSearch {
+    width: 20vw;
+    margin: 0 0 0 -5px;
+}
+
+.loginBtn:hover, .registerBtn:hover {
+    background-color: rgb(37, 111, 158);
+}
+
+.loginRow {
+    margin: 20px 0 20px 0;
+}
+
 .userSearchContainer {
     padding: 5px;
     border: 2px black;

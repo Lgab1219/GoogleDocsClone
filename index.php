@@ -27,49 +27,56 @@ $adminDocuments = getAllAdminDocuments($pdo);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <title>Home</title>
 </head>
 <body>
-    <h1>Hello, <?php echo $_SESSION['username']; ?>!</h1>
-   
-    <?php if($_SESSION['role'] == "admin"): ?>
-        <a href="suspendAccounts.php">Suspend Accounts</a><br><br>
-    <?php endif; ?>
+    <nav class="navbar">
+        <h1 class="montserrat">GoogleDocs<span id="logo-span">CLONE</span></h1>
+    </nav>
 
-    <button id="createDocumentBtn">Create a new document</button>
 
-    <br><br>
+    <div id="lower-navbar">
+        <h2 class="montserrat username">Hello, <?php echo $_SESSION['username']; ?>!</h2>
+        <?php if($_SESSION['role'] == "admin"): ?>
+            <a href="suspendAccounts.php" id="suspendBtn">Suspend Accounts</a><br><br>
+        <?php endif; ?>
+        <form action="core/logout.php" method="POST"><button type="submit" id="logoutBtn">Logout</button></form>
+    </div>
+
+    <div class="createDocumentBtnContainer">
+        <button id="createDocumentBtn">+</button>
+    </div>
 
     <div id="documentsContainer">
-        <h2>Your Documents</h2>
+        <h2 class="montserrat">Your Documents</h2>
         <?php if($_SESSION['role'] == "user"): ?>
             <ul>
                 <?php foreach($nonAdminDocuments as $document): ?>
-                    <li>
-                        <a href="editDocument.php?documentID=<?php echo $document['documentID']; ?>">
-                            <p><?php echo htmlspecialchars($document['documentTitle']) ?> </p>
+                    <li class="document-item">
+                        <a style="text-decoration: none;" href="editDocument.php?documentID=<?php echo $document['documentID']; ?>">
+                            <h2 class="montserrat title-text"><?php echo htmlspecialchars($document['documentTitle']) ?> </h2>
                         </a>
-                        <p>Created By: <?php echo htmlspecialchars($document['username']) ?></p>
+                        <p class="montserrat">Created By: <?php echo htmlspecialchars($document['username']) ?></p>
                     </li>
                 <?php endforeach; ?>
             </ul>
         <?php else: ?>
             <ul>
                 <?php foreach($adminDocuments as $document): ?>
-                    <li>
-                    <a href="editDocument.php?documentID=<?php echo $document['documentID']; ?>">
-                        <p><?php echo htmlspecialchars(trim($document['documentTitle']) ?: '(Untitled Document)'); ?> </p>
+                    <li class="document-item">
+                        <a style="text-decoration: none;" href="editDocument.php?documentID=<?php echo $document['documentID']; ?>">
+                        <h2 class="montserrat title-text"><?php echo htmlspecialchars(trim($document['documentTitle']) ?: '(Untitled Document)'); ?> </h2>
                     </a>
-                    <p>Created By: <?php echo htmlspecialchars($document['username']) ?></p>
+                    <p class="montserrat">Created By: <?php echo htmlspecialchars($document['username']) ?></p>
                     </li>
                 <?php endforeach; ?>
             </ul>
         <?php endif; ?>
     </div>
-
-    <br><br>
-
-    <form action="core/logout.php" method="POST"><button type="submit">Logout</button></form>
 
     <script src="core/script.js"></script>
 </body>
